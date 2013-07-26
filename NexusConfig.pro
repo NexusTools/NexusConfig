@@ -4,9 +4,14 @@
 #
 #-------------------------------------------------
 
-QT       += script xml
+QT       += script xml sql
 
 QT       -= gui
+
+!greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += gui
+	DEFINES += QSETTINGSLOCATION
+}
 
 TARGET = NexusConfig
 TEMPLATE = lib
