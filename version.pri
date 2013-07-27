@@ -18,7 +18,7 @@ greaterThan(BRANCH_COUNT, 1) {
 }
 
 isEmpty(VER_MAJ): VER_MAJ = 0
-isEmpty(VER_MIN): VER_MIN = 0
+isEmpty(VER_MIN): VER_MIN = 1
 
 DEFINES += $$quote(VER_MAJ=\'\"$$VER_MAJ\"\')
 DEFINES += $$quote(VER_MIN=\'\"$$VER_MIN\"\')
