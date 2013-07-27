@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 
+# Qt Modules
 QT       += script xml sql
 
 QT       -= gui
@@ -13,21 +14,17 @@ QT       -= gui
 	DEFINES += QSETTINGSLOCATION
 }
 
+# Project Information
 TARGET = NexusConfig
 TEMPLATE = lib
 
 DEFINES += NEXUSCONFIG_LIBRARY
 
+# Versioning
+include(version.pri)
+
+# Project Files
 SOURCES += nexusconfig.cpp
 
 HEADERS += nexusconfig.h\
-        nexusconfig_global.h
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
+		nexusconfig_global.h
