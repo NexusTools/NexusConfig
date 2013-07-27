@@ -89,15 +89,19 @@ QVariant NexusConfig::parse(QIODevice & io, Format f) {
                 return parse(io, BinaryFormat);
             } catch(const char* e) {}
             try {
+                io.seek(0);
                 return parse(io, XmlFormat);
             } catch(const char* e) {}
             try {
+                io.seek(0);
                 return parse(io, YMLFormat);
             } catch(const char* e) {}
             try {
+                io.seek(0);
                 return parse(io, IniFormat);
             } catch(const char* e) {}
             try {
+                io.seek(0);
                 return parse(io, JSONFormat);
             } catch(const char* e) {}
 
