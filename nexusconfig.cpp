@@ -1,6 +1,6 @@
 #include "nexusconfig.h"
 
-#ifdef QSETTINGSLOCATION
+#ifdef LEGACY_QT
 #include <QSettings>
 #include <QFileInfo>
 #include <QDir>
@@ -21,7 +21,7 @@ NexusConfig::NexusConfig(QString appName, QString organization)
         organization = QCoreApplication::instance()->organizationName();
 
     filePath =
-#ifdef QSETTINGSLOCATION
+#ifdef LEGACY_QT
             QSettings(organization, appName).fileName();
 #else
             QStandardPaths::locate(QStandardPaths::ConfigLocation, QString("%1/%2.conf").arg(organization).arg(appName));
@@ -35,11 +35,11 @@ NexusConfig::NexusConfig(QString appName, QString organization)
     } catch(...) {}
 }
 
-QVariant NexusConfig::parseFile(QString p, Format f) {
+QVariant NexusConfig::parseFile(QString p, Format f, QString name) {
     QFile file(p);
     qDebug() << "Parsing configuration file..." << p.toLocal8Bit().data();
     if(file.open(QFile::ReadOnly))
-        return parse(file, f);
+        return parse(file, f, name);
     else
         throw "Failed to open configuration file...";
 }
@@ -48,13 +48,21 @@ QVariant nodeToVariant(QDomNode el) {
     if(el.hasAttributes() || el.hasChildNodes()) {
         QVariantMap map;
         if(el.attributes().length()) {
+#if LEGACY_QT
+            for(uint i=0; i<el.attributes().length(); i++)
+#else
             for(int i=0; i<el.attributes().length(); i++)
+#endif
                 map.insert(el.attributes().item(i).nodeName(), nodeToVariant(el.attributes().item(i)));
 
         } else if(el.nodeName().endsWith('s')) {
             QVariantList list;
             QString listNodeName = el.nodeName().mid(0, el.nodeName().length()-1);
+#if LEGACY_QT
+            for(uint i=0; i<el.childNodes().length(); i++) {
+#else
             for(int i=0; i<el.childNodes().length(); i++) {
+#endif
                 if(el.childNodes().at(i).nodeName() != listNodeName) {
                     list.clear();
                     break;
@@ -66,7 +74,11 @@ QVariant nodeToVariant(QDomNode el) {
                 return list;
         }
 
+#if LEGACY_QT
+        for(uint i=0; i<el.childNodes().length(); i++)
+#else
         for(int i=0; i<el.childNodes().length(); i++)
+#endif
             map.insert(el.childNodes().at(i).nodeName(), nodeToVariant(el.childNodes().at(i)));
 
         if(map.size() == 1 && map.contains("#text"))
@@ -76,7 +88,7 @@ QVariant nodeToVariant(QDomNode el) {
         return el.nodeValue();
 }
 
-QVariant NexusConfig::parse(QIODevice & io, Format f) {
+QVariant NexusConfig::parse(QIODevice & io, Format f, QString name) {
     QVariant data;
 
     switch(f) {
@@ -118,8 +130,9 @@ QVariant NexusConfig::parse(QIODevice & io, Format f) {
 
             QDomNode configNode = dom.firstChild();
 
-            while(!configNode.isNull() && configNode.nodeName() !=
-                    QCoreApplication::instance()->applicationName())
+            if(name.isEmpty())
+                name = QCoreApplication::instance()->applicationName();
+            while(!configNode.isNull() && configNode.nodeName() != name)
                 configNode = configNode.nextSibling();
 
             if(configNode.isNull())
