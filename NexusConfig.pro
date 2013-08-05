@@ -28,3 +28,12 @@ SOURCES += nexusconfig.cpp
 
 HEADERS += nexusconfig.h\
 		nexusconfig_global.h
+
+unix:!symbian {
+	maemo5 {
+		target.path = /opt/usr/lib
+	} else {
+		target.path = /usr/lib
+	}
+	INSTALLS += target
+}
